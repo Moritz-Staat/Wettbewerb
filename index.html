@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0D1B2A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SportDuel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1B2A;
+    --card: #1E2D3D;
+    --card2: #162536;
+    --accent: #B8F04A;
+    --accent2: #FF6B6B;
+    --text: #F0EDE6;
+    --muted: #7A8FA6;
+    --border: #2A3D52;
+    --pending: #FFB347;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    overflow-x: hidden;
+  }
+
+  /* ---- TOP BAR ---- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--accent); }
+  .topbar-user {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .avatar.rival { background: var(--accent2); color: #fff; }
+
+  /* ---- PAGES ---- */
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+
+  /* ---- SCORECARD ---- */
+  .score-hero {
+    position: relative;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .score-block {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .score-block.me { left: 10px; z-index: 2; }
+  .score-block.rival { right: 10px; z-index: 1; opacity: 0.55; }
+  .score-block.rival.leading { z-index: 2; opacity: 1; }
+  .score-block.me.trailing { z-index: 1; opacity: 0.55; }
+
+  .score-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 110px;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .score-block.me .score-num { color: var(--accent); }
+  .score-block.rival .score-num { color: var(--accent2); }
+  .score-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .score-name { font-size: 13px; font-weight: 600; }
+  .score-vs {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; color: var(--border);
+    z-index: 3;
+  }
+
+  .period-tabs {
+    display: flex; gap: 8px; margin-bottom: 20px;
+  }
+  .period-tab {
+    flex: 1; padding: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    border-radius: 8px; font-size: 12px; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: all 0.2s;
+  }
+  .period-tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card); border-radius: 12px; padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .stat-card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .stat-card-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--text); }
+  .stat-card-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .recent-title { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .activity-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 8px; border: 1px solid var(--border);
+  }
+  .activity-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .activity-info { flex: 1; }
+  .activity-name { font-size: 14px; font-weight: 500; }
+  .activity-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .activity-pts {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+    color: var(--accent);
+  }
+  .activity-pts.rival-pts { color: var(--accent2); }
+  .pending-badge {
+    font-size: 10px; background: var(--pending); color: #000;
+    border-radius: 4px; padding: 2px 6px; font-weight: 600;
+  }
+  .approved-badge {
+    font-size: 10px; background: var(--accent); color: var(--bg);
+    border-radius: 4px; padding: 2px 6px; font-weight: 600;
+  }
+
+  /* ---- LOG ACTIVITY ---- */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 1px; margin-bottom: 16px;
+  }
+
+  .disc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .disc-btn {
+    background: var(--card); border: 2px solid var(--border);
+    border-radius: 12px; padding: 14px 10px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+    color: var(--text);
+  }
+  .disc-btn:hover, .disc-btn.selected {
+    border-color: var(--accent); background: rgba(184,240,74,0.08);
+  }
+  .disc-btn .disc-icon { font-size: 28px; margin-bottom: 6px; }
+  .disc-btn .disc-name { font-size: 12px; font-weight: 600; }
+  .disc-btn .disc-pts { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px; padding: 12px 14px;
+    font-size: 15px; font-family: 'Inter', sans-serif; outline: none;
+    transition: border 0.2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card); border-radius: 10px; padding: 12px 14px;
+    margin-bottom: 16px; border: 1px solid var(--border);
+  }
+  .toggle-label { font-size: 14px; }
+  .toggle {
+    width: 44px; height: 24px; border-radius: 12px;
+    background: var(--border); cursor: pointer; position: relative;
+    transition: background 0.2s; border: none;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: white; top: 3px; left: 3px; transition: left 0.2s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle.on::after { left: 23px; }
+
+  .photo-upload {
+    width: 100%; border: 2px dashed var(--border);
+    border-radius: 12px; padding: 24px;
+    text-align: center; cursor: pointer; transition: border 0.2s;
+    background: var(--card); margin-bottom: 16px;
+    position: relative;
+  }
+  .photo-upload:hover { border-color: var(--accent); }
+  .photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .photo-upload .upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .photo-upload .upload-text { font-size: 13px; color: var(--muted); }
+  .photo-preview { width: 100%; border-radius: 10px; margin-bottom: 12px; display: none; max-height: 200px; object-fit: cover; }
+
+  .pts-preview {
+    background: rgba(184,240,74,0.1); border: 1px solid var(--accent);
+    border-radius: 10px; padding: 14px; text-align: center;
+    margin-bottom: 16px;
+  }
+  .pts-preview-label { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .pts-preview-num { font-family: 'Bebas Neue', sans-serif; font-size: 48px; color: var(--accent); }
+
+  .btn-primary {
+    width: 100%; padding: 16px; background: var(--accent);
+    color: var(--bg); border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    font-family: 'Inter', sans-serif; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
+
+  /* ---- PENDING ---- */
+  .pending-card {
+    background: var(--card); border-radius: 14px; padding: 16px;
+    margin-bottom: 12px; border: 1px solid var(--pending);
+  }
+  .pending-card-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+  }
+  .pending-who { display: flex; align-items: center; gap: 8px; }
+  .pending-pts { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--pending); }
+  .pending-activity { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .pending-detail { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+  .pending-photo {
+    width: 100%; border-radius: 10px; margin-bottom: 12px;
+    max-height: 180px; object-fit: cover; background: var(--card2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; min-height: 100px;
+  }
+  .pending-actions { display: flex; gap: 10px; }
+  .btn-approve {
+    flex: 1; padding: 10px; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+    font-size: 14px; font-family: 'Inter', sans-serif;
+  }
+  .btn-reject {
+    flex: 1; padding: 10px; background: transparent; color: var(--accent2);
+    border: 2px solid var(--accent2); border-radius: 10px; font-weight: 700; cursor: pointer;
+    font-size: 14px; font-family: 'Inter', sans-serif;
+  }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* ---- HISTORY ---- */
+  .month-group-title {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin: 20px 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .month-group-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .month-pts { font-size: 13px; font-weight: 600; }
+  .month-pts.me-color { color: var(--accent); }
+  .month-pts.rival-color { color: var(--accent2); }
+
+  /* ---- NAV ---- */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--card); border-top: 1px solid var(--border);
+    display: flex; padding: 8px 0 16px; z-index: 200;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; cursor: pointer; padding: 6px 0;
+    color: var(--muted); font-size: 10px; letter-spacing: 0.5px;
+    text-transform: uppercase; transition: color 0.2s; border: none;
+    background: transparent; font-family: 'Inter', sans-serif;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-icon { font-size: 22px; }
+  .nav-badge {
+    position: absolute; top: 4px; right: 20px;
+    background: var(--accent2); color: white; border-radius: 10px;
+    font-size: 10px; font-weight: 700; padding: 1px 5px;
+    display: none;
+  }
+  .nav-badge.visible { display: block; }
+  .nav-item-wrap { position: relative; display: flex; flex-direction: column; align-items: center; flex: 1; }
+
+  /* ---- USER PICKER ---- */
+  .user-picker {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+    z-index: 300; display: flex; align-items: flex-end;
+    display: none;
+  }
+  .user-picker.open { display: flex; }
+  .user-picker-sheet {
+    width: 100%; background: var(--card); border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+  }
+  .user-picker-title { font-family: 'Bebas Neue', sans-serif; font-size: 24px; margin-bottom: 16px; }
+  .user-option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px; border-radius: 12px; cursor: pointer;
+    transition: background 0.2s; margin-bottom: 8px;
+  }
+  .user-option:hover { background: var(--card2); }
+  .user-option.selected { background: rgba(184,240,74,0.1); border: 1px solid var(--accent); }
+  .user-option-name { font-size: 16px; font-weight: 600; }
+  .user-option-sub { font-size: 12px; color: var(--muted); }
+
+  /* ---- TOAST ---- */
+  .toast {
+    position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-10px);
+    background: var(--accent); color: var(--bg);
+    padding: 10px 20px; border-radius: 20px; font-weight: 600;
+    font-size: 14px; z-index: 400; opacity: 0; transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  select.form-input { appearance: none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">SportDuel</div>
+  <div class="topbar-user" onclick="openUserPicker()">
+    <div class="avatar" id="topAvatarEl">M</div>
+    <span id="topUserName">Moritz</span>
+    <span style="color:var(--muted); font-size:18px;">⌄</span>
+  </div>
+</div>
+
+<!-- PAGES -->
+<div id="page-score" class="page active">
+  <div class="score-hero" id="scoreHero">
+    <div class="score-block me" id="scoreBlockMe">
+      <div class="score-num" id="scoreMe">0</div>
+      <div class="score-name" id="scoreNameMe">Moritz</div>
+      <div class="score-label">Punkte</div>
+    </div>
+    <div class="score-vs">VS</div>
+    <div class="score-block rival" id="scoreBlockRival">
+      <div class="score-num" id="scoreRival">0</div>
+      <div class="score-name" id="scoreNameRival">Nina</div>
+      <div class="score-label">Punkte</div>
+    </div>
+  </div>
+
+  <div class="period-tabs">
+    <button class="period-tab active" onclick="setPeriod('month', this)">Dieser Monat</button>
+    <button class="period-tab" onclick="setPeriod('all', this)">Gesamt</button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-card-label">Aktivitäten</div>
+      <div class="stat-card-val" id="statActMe">0</div>
+      <div class="stat-card-sub" id="statActMeName">Moritz</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Aktivitäten</div>
+      <div class="stat-card-val" id="statActRival">0</div>
+      <div class="stat-card-sub" id="statActRivalName">Nina</div>
+    </div>
+  </div>
+
+  <div class="recent-title">Zuletzt</div>
+  <div id="recentList"></div>
+</div>
+
+<div id="page-log" class="page">
+  <div class="section-title">Aktivität eintragen</div>
+
+  <div class="disc-grid">
+    <div class="disc-btn" onclick="selectDisc('steps')" id="disc-steps">
+      <div class="disc-icon">👟</div>
+      <div class="disc-name">Schritte</div>
+      <div class="disc-pts">1 Pkt / 100 (ab 4k)</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('run')" id="disc-run">
+      <div class="disc-icon">🏃</div>
+      <div class="disc-name">Joggen</div>
+      <div class="disc-pts">5 Pkt / km</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('bike')" id="disc-bike">
+      <div class="disc-icon">🚴</div>
+      <div class="disc-name">Fahrrad</div>
+      <div class="disc-pts">2 Pkt / km</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('ebike')" id="disc-ebike">
+      <div class="disc-icon">⚡</div>
+      <div class="disc-name">E-Bike</div>
+      <div class="disc-pts">1 Pkt / km</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('gym')" id="disc-gym">
+      <div class="disc-icon">🏋️</div>
+      <div class="disc-name">Gym</div>
+      <div class="disc-pts">30 Pkt pauschal</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('physio')" id="disc-physio">
+      <div class="disc-icon">🧘</div>
+      <div class="disc-name">Physio / Dehnen</div>
+      <div class="disc-pts">10 Pkt / 15 Min</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('circus')" id="disc-circus">
+      <div class="disc-icon">🎪</div>
+      <div class="disc-name">Zirkus / Moshpit</div>
+      <div class="disc-pts">15 Pkt / 30 Min</div>
+    </div>
+    <div class="disc-btn" onclick="selectDisc('free')" id="disc-free">
+      <div class="disc-icon">🌀</div>
+      <div class="disc-name">Freies Training</div>
+      <div class="disc-pts">Du gibst Punkte ein</div>
+    </div>
+  </div>
+
+  <div id="logForm" style="display:none;">
+    <div id="valueInputGroup" class="form-group">
+      <label class="form-label" id="valueLabel">Kilometer</label>
+      <input type="number" class="form-input" id="valueInput" placeholder="0" min="0" step="0.1" oninput="updatePtsPreview()">
+    </div>
+
+    <div id="dateGroup" class="form-group">
+      <label class="form-label">Datum</label>
+      <input type="date" class="form-input" id="dateInput">
+    </div>
+
+    <div id="togetherRow" class="toggle-row">
+      <span class="toggle-label">🤝 Gemeinsam gemacht</span>
+      <button class="toggle" id="togetherToggle" onclick="toggleTogether()"></button>
+    </div>
+
+    <div id="initiatorGroup" style="display:none;" class="form-group">
+      <label class="form-label">Wer hat initiiert?</label>
+      <select class="form-input" id="initiatorSelect">
+        <option value="me">Ich (Moritz)</option>
+        <option value="rival">Nina</option>
+      </select>
+    </div>
+
+    <div id="ptsPreview" class="pts-preview">
+      <div class="pts-preview-label">Punkte</div>
+      <div class="pts-preview-num" id="ptsNum">0</div>
+    </div>
+
+    <div class="photo-upload" id="photoUploadArea">
+      <input type="file" accept="image/*" onchange="handlePhoto(event)">
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Beweisfoto hochladen<br><span style="font-size:11px; opacity:0.6;">Wird für Approval benötigt</span></div>
+    </div>
+    <img class="photo-preview" id="photoPreview" src="" alt="">
+
+    <div class="form-group">
+      <label class="form-label">Notiz (optional)</label>
+      <input type="text" class="form-input" id="noteInput" placeholder="z.B. Morgenlauf im Park">
+    </div>
+
+    <button class="btn-primary" id="submitBtn" onclick="submitActivity()">Eintragen & zur Bestätigung senden</button>
+  </div>
+</div>
+
+<div id="page-pending" class="page">
+  <div class="section-title">Ausstehend</div>
+  <div id="pendingList"></div>
+</div>
+
+<div id="page-history" class="page">
+  <div class="section-title">Verlauf</div>
+  <div id="historyList"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <div class="nav-item-wrap">
+    <button class="nav-item active" onclick="navigate('score', this)">
+      <span class="nav-icon">🏆</span>Score
+    </button>
+  </div>
+  <div class="nav-item-wrap">
+    <button class="nav-item" onclick="navigate('log', this)">
+      <span class="nav-icon">➕</span>Eintragen
+    </button>
+  </div>
+  <div class="nav-item-wrap" style="position:relative">
+    <button class="nav-item" onclick="navigate('pending', this)" id="navPending">
+      <span class="nav-icon">⏳</span>Pending
+    </button>
+    <div class="nav-badge" id="pendingBadge">0</div>
+  </div>
+  <div class="nav-item-wrap">
+    <button class="nav-item" onclick="navigate('history', this)" id="navHistory">
+      <span class="nav-icon">📋</span>Verlauf
+    </button>
+  </div>
+</nav>
+
+<!-- USER PICKER -->
+<div class="user-picker" id="userPicker" onclick="closeUserPicker(event)">
+  <div class="user-picker-sheet">
+    <div class="user-picker-title">Als wen einloggen?</div>
+    <div class="user-option selected" onclick="switchUser('moritz')" id="opt-moritz">
+      <div class="avatar">M</div>
+      <div>
+        <div class="user-option-name">Moritz</div>
+        <div class="user-option-sub">Dein Account</div>
+      </div>
+    </div>
+    <div class="user-option" onclick="switchUser('nina')" id="opt-nina">
+      <div class="avatar rival">N</div>
+      <div>
+        <div class="user-option-name">Nina</div>
+        <div class="user-option-sub">Konkurrentin</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== STATE =====================
+const USERS = {
+  moritz: { name: 'Moritz', initial: 'M', color: '#B8F04A', textColor: '#0D1B2A' },
+  nina:   { name: 'Nina',   initial: 'N', color: '#FF6B6B', textColor: '#fff' }
+};
+
+let currentUser = 'moritz';
+let activities = JSON.parse(localStorage.getItem('sd_activities') || '[]');
+let currentPeriod = 'month';
+let selectedDisc = null;
+let togetherOn = false;
+let photoData = null;
+
+// ===================== SCORING =====================
+function calcPoints(disc, value, together, initiator, userId) {
+  let pts = 0;
+  switch(disc) {
+    case 'steps':
+      pts = value >= 4000 ? Math.floor(value / 100) : 0; break;
+    case 'run':
+      pts = value * 5; break;
+    case 'bike':
+      pts = value * 2; break;
+    case 'ebike':
+      pts = value * 1; break;
+    case 'gym':
+      pts = 30; break;
+    case 'physio':
+      pts = Math.floor(value / 15) * 10; break;
+    case 'circus':
+      pts = Math.floor(value / 30) * 15; break;
+    case 'free':
+      pts = value; break;
+  }
+  if (together && initiator === userId) pts += 2;
+  return Math.max(0, Math.round(pts * 10) / 10);
+}
+
+function getScores(period) {
+  const now = new Date();
+  const filtered = period === 'month'
+    ? activities.filter(a => {
+        const d = new Date(a.date);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      })
+    : activities;
+  const approved = filtered.filter(a => a.status === 'approved' || a.disc === 'steps');
+  const m = approved.filter(a => a.user === 'moritz').reduce((s, a) => s + a.pts, 0);
+  const n = approved.filter(a => a.user === 'nina').reduce((s, a) => s + a.pts, 0);
+  return { moritz: Math.round(m * 10) / 10, nina: Math.round(n * 10) / 10 };
+}
+
+// ===================== UI HELPERS =====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function navigate(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+  if (page === 'score') renderScore();
+  if (page === 'pending') renderPending();
+  if (page === 'history') renderHistory();
+}
+
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderScore();
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+const DISC_LABELS = {
+  steps: 'Schritte', run: 'Joggen', bike: 'Fahrrad', ebike: 'E-Bike',
+  gym: 'Gym', physio: 'Physio/Dehnen', circus: 'Zirkus', free: 'Freies Training'
+};
+const DISC_ICONS = {
+  steps: '👟', run: '🏃', bike: '🚴', ebike: '⚡',
+  gym: '🏋️', physio: '🧘', circus: '🎪', free: '🌀'
+};
+
+// ===================== RENDER SCORE =====================
+function renderScore() {
+  const scores = getScores(currentPeriod);
+  document.getElementById('scoreMe').textContent = scores.moritz;
+  document.getElementById('scoreRival').textContent = scores.nina;
+
+  const meBlock = document.getElementById('scoreBlockMe');
+  const rivBlock = document.getElementById('scoreBlockRival');
+  meBlock.classList.remove('trailing'); rivBlock.classList.remove('leading');
+  if (scores.nina > scores.moritz) { meBlock.classList.add('trailing'); rivBlock.classList.add('leading'); }
+
+  // Stats
+  const now = new Date();
+  const filtered = currentPeriod === 'month'
+    ? activities.filter(a => {
+        const d = new Date(a.date);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      })
+    : activities;
+  const approved = filtered.filter(a => a.status === 'approved' || a.disc === 'steps');
+  document.getElementById('statActMe').textContent = approved.filter(a => a.user === 'moritz').length;
+  document.getElementById('statActRival').textContent = approved.filter(a => a.user === 'nina').length;
+
+  // Recent (last 5 approved)
+  const recent = [...activities]
+    .filter(a => a.status === 'approved' || a.disc === 'steps')
+    .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
+  const el = document.getElementById('recentList');
+  el.innerHTML = recent.length ? recent.map(a => activityHTML(a)).join('') : '<div class="empty-state"><div class="empty-icon">🏅</div><div class="empty-text">Noch keine Aktivitäten. Los geht\'s!</div></div>';
+}
+
+function activityHTML(a) {
+  const isMe = a.user === 'moritz';
+  const ptsClass = isMe ? 'activity-pts' : 'activity-pts rival-pts';
+  const userName = USERS[a.user].name;
+  return `<div class="activity-item">
+    <div class="activity-icon" style="background:${isMe ? 'rgba(184,240,74,0.15)' : 'rgba(255,107,107,0.15)'}">${DISC_ICONS[a.disc]}</div>
+    <div class="activity-info">
+      <div class="activity-name">${DISC_LABELS[a.disc]}</div>
+      <div class="activity-meta">${userName} · ${formatDate(a.date)}${a.note ? ' · ' + a.note : ''}</div>
+    </div>
+    <div class="${ptsClass}">+${a.pts}</div>
+  </div>`;
+}
+
+// ===================== RENDER PENDING =====================
+function renderPending() {
+  const pending = activities.filter(a => a.status === 'pending');
+  updatePendingBadge();
+  const el = document.getElementById('pendingList');
+  if (!pending.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">Alles bestätigt!</div></div>';
+    return;
+  }
+  el.innerHTML = pending.map(a => {
+    const canApprove = a.user !== currentUser;
+    const userName = USERS[a.user].name;
+    return `<div class="pending-card" id="pcard-${a.id}">
+      <div class="pending-card-header">
+        <div class="pending-who">
+          <div class="avatar${a.user === 'nina' ? ' rival' : ''}">${USERS[a.user].initial}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;">${userName}</div>
+            <div style="font-size:11px;color:var(--muted)">${formatDate(a.date)}</div>
+          </div>
+        </div>
+        <div class="pending-pts">${a.pts} Pkt</div>
+      </div>
+      <div class="pending-activity">${DISC_ICONS[a.disc]} ${DISC_LABELS[a.disc]}</div>
+      <div class="pending-detail">${a.valueLabel || ''}${a.note ? ' · ' + a.note : ''}</div>
+      ${a.photo ? `<img src="${a.photo}" style="width:100%;border-radius:10px;margin-bottom:12px;max-height:180px;object-fit:cover;">` : `<div class="pending-photo">📸</div>`}
+      ${canApprove ? `<div class="pending-actions">
+        <button class="btn-approve" onclick="approveActivity('${a.id}')">✓ Bestätigen</button>
+        <button class="btn-reject" onclick="rejectActivity('${a.id}')">✗ Ablehnen</button>
+      </div>` : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:4px 0">Warte auf Bestätigung von ${a.user === 'moritz' ? 'Nina' : 'Moritz'}</div>`}
+    </div>`;
+  }).join('');
+}
+
+function updatePendingBadge() {
+  const count = activities.filter(a => a.status === 'pending' && a.user !== currentUser).length;
+  const badge = document.getElementById('pendingBadge');
+  badge.textContent = count;
+  badge.classList.toggle('visible', count > 0);
+}
+
+function approveActivity(id) {
+  const a = activities.find(x => x.id === id);
+  if (!a) return;
+  a.status = 'approved';
+  saveActivities();
+  showToast('✅ Aktivität bestätigt!');
+  renderPending();
+  renderScore();
+}
+
+function rejectActivity(id) {
+  activities = activities.filter(x => x.id !== id);
+  saveActivities();
+  showToast('❌ Aktivität abgelehnt');
+  renderPending();
+}
+
+// ===================== RENDER HISTORY =====================
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!activities.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Noch keine Einträge.</div></div>';
+    return;
+  }
+  const sorted = [...activities].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // Group by month
+  const groups = {};
+  sorted.forEach(a => {
+    const d = new Date(a.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(a);
+  });
+  let html = '';
+  for (const [key, acts] of Object.entries(groups)) {
+    const [yr, mo] = key.split('-');
+    const label = new Date(yr, mo-1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+    const mPts = acts.filter(a => a.user === 'moritz' && (a.status === 'approved' || a.disc === 'steps')).reduce((s,a) => s+a.pts, 0);
+    const nPts = acts.filter(a => a.user === 'nina' && (a.status === 'approved' || a.disc === 'steps')).reduce((s,a) => s+a.pts, 0);
+    html += `<div class="month-group-title">${label} <span class="month-pts me-color">M:${Math.round(mPts)}</span> <span class="month-pts rival-color">N:${Math.round(nPts)}</span></div>`;
+    acts.forEach(a => {
+      const isMe = a.user === 'moritz';
+      let statusBadge = '';
+      if (a.disc !== 'steps') {
+        statusBadge = a.status === 'approved'
+          ? '<span class="approved-badge">✓ Bestätigt</span>'
+          : a.status === 'pending'
+          ? '<span class="pending-badge">Ausstehend</span>'
+          : '<span style="font-size:10px;color:var(--accent2)">Abgelehnt</span>';
+      }
+      html += `<div class="activity-item">
+        <div class="activity-icon" style="background:${isMe ? 'rgba(184,240,74,0.15)' : 'rgba(255,107,107,0.15)'}">${DISC_ICONS[a.disc]}</div>
+        <div class="activity-info">
+          <div class="activity-name">${DISC_LABELS[a.disc]} ${statusBadge}</div>
+          <div class="activity-meta">${USERS[a.user].name} · ${formatDate(a.date)}${a.note ? ' · '+a.note : ''}</div>
+        </div>
+        <div class="${isMe ? 'activity-pts' : 'activity-pts rival-pts'}">+${a.pts}</div>
+      </div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+// ===================== LOG FORM =====================
+function selectDisc(disc) {
+  selectedDisc = disc;
+  document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('disc-' + disc).classList.add('selected');
+  document.getElementById('logForm').style.display = 'block';
+  photoData = null;
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('valueInput').value = '';
+  document.getElementById('noteInput').value = '';
+  togetherOn = false;
+  document.getElementById('togetherToggle').classList.remove('on');
+  document.getElementById('initiatorGroup').style.display = 'none';
+
+  const vg = document.getElementById('valueInputGroup');
+  const vl = document.getElementById('valueLabel');
+  const tRow = document.getElementById('togetherRow');
+
+  if (disc === 'steps') {
+    vg.style.display = 'block';
+    vl.textContent = 'Anzahl Schritte';
+    document.getElementById('valueInput').placeholder = '6000';
+    tRow.style.display = 'none';
+  } else if (['run', 'bike', 'ebike'].includes(disc)) {
+    vg.style.display = 'block';
+    vl.textContent = 'Kilometer';
+    document.getElementById('valueInput').placeholder = '5.0';
+    tRow.style.display = 'flex';
+  } else if (disc === 'physio') {
+    vg.style.display = 'block';
+    vl.textContent = 'Minuten';
+    document.getElementById('valueInput').placeholder = '30';
+    tRow.style.display = 'flex';
+  } else if (disc === 'circus') {
+    vg.style.display = 'block';
+    vl.textContent = 'Minuten';
+    document.getElementById('valueInput').placeholder = '60';
+    tRow.style.display = 'flex';
+  } else if (disc === 'gym') {
+    vg.style.display = 'none';
+    tRow.style.display = 'flex';
+  } else if (disc === 'free') {
+    vg.style.display = 'block';
+    vl.textContent = 'Punkte (selbst vergeben)';
+    document.getElementById('valueInput').placeholder = '20';
+    tRow.style.display = 'flex';
+  }
+
+  // Set today's date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dateInput').value = today;
+
+  // Steps don't need photo/approval
+  const photoArea = document.getElementById('photoUploadArea');
+  photoArea.style.display = disc === 'steps' ? 'none' : 'block';
+
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = disc === 'steps' ? 'Schritte eintragen' : 'Eintragen & zur Bestätigung senden';
+
+  updatePtsPreview();
+  document.getElementById('logForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleTogether() {
+  togetherOn = !togetherOn;
+  document.getElementById('togetherToggle').classList.toggle('on', togetherOn);
+  document.getElementById('initiatorGroup').style.display = togetherOn ? 'block' : 'none';
+  updatePtsPreview();
+}
+
+function updatePtsPreview() {
+  if (!selectedDisc) return;
+  const v = parseFloat(document.getElementById('valueInput').value) || (selectedDisc === 'gym' ? 1 : 0);
+  const initiator = document.getElementById('initiatorSelect').value;
+  const pts = calcPoints(selectedDisc, v, togetherOn, initiator, 'me');
+  document.getElementById('ptsNum').textContent = pts;
+}
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoData = ev.target.result;
+    const prev = document.getElementById('photoPreview');
+    prev.src = photoData;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitActivity() {
+  if (!selectedDisc) return;
+  const valueRaw = parseFloat(document.getElementById('valueInput').value);
+  const value = isNaN(valueRaw) ? (selectedDisc === 'gym' ? 1 : 0) : valueRaw;
+  const date = document.getElementById('dateInput').value;
+  const note = document.getElementById('noteInput').value.trim();
+  const initiator = document.getElementById('initiatorSelect').value;
+
+  // Photo required (except steps and gym)
+  if (!['steps', 'gym'].includes(selectedDisc) && !photoData) {
+    showToast('📸 Bitte Beweisfoto hochladen!');
+    return;
+  }
+
+  const pts = calcPoints(selectedDisc, value, togetherOn, initiator, 'me');
+  if (pts <= 0 && selectedDisc !== 'gym') {
+    showToast('⚠️ Bitte Wert eingeben!');
+    return;
+  }
+
+  let valueLabel = '';
+  if (['run','bike','ebike'].includes(selectedDisc)) valueLabel = `${value} km`;
+  else if (selectedDisc === 'steps') valueLabel = `${value} Schritte`;
+  else if (['physio','circus'].includes(selectedDisc)) valueLabel = `${value} Min`;
+  else if (selectedDisc === 'free') valueLabel = `${value} Pkt (selbst)`;
+
+  const activity = {
+    id: Date.now().toString(),
+    user: currentUser,
+    disc: selectedDisc,
+    value, pts, date, note, valueLabel, photoData: photoData,
+    photo: photoData,
+    together: togetherOn,
+    initiator: togetherOn ? initiator : null,
+    status: selectedDisc === 'steps' ? 'approved' : 'pending',
+    createdAt: new Date().toISOString()
+  };
+
+  // Also award initiator bonus to rival if they initiated
+  if (togetherOn && initiator === 'rival') {
+    const rival = currentUser === 'moritz' ? 'nina' : 'moritz';
+    activities.push({
+      id: Date.now().toString() + '_bonus',
+      user: rival,
+      disc: selectedDisc,
+      value, pts: calcPoints(selectedDisc, value, true, 'rival', 'me') + 2,
+      date, note: '(Initiator-Bonus) ' + note, valueLabel,
+      photo: photoData,
+      together: true, initiator: 'rival',
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  activities.push(activity);
+  saveActivities();
+  updatePendingBadge();
+  showToast(selectedDisc === 'steps' ? '✅ Schritte eingetragen!' : '⏳ Gesendet! Warte auf Bestätigung.');
+
+  // Reset form
+  selectedDisc = null;
+  document.querySelectorAll('.disc-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('logForm').style.display = 'none';
+  photoData = null;
+}
+
+// ===================== USER SWITCHING =====================
+function openUserPicker() {
+  document.getElementById('userPicker').classList.add('open');
+}
+function closeUserPicker(e) {
+  if (e.target === document.getElementById('userPicker')) {
+    document.getElementById('userPicker').classList.remove('open');
+  }
+}
+function switchUser(uid) {
+  currentUser = uid;
+  const u = USERS[uid];
+  document.getElementById('topAvatarEl').textContent = u.initial;
+  document.getElementById('topAvatarEl').style.background = u.color;
+  document.getElementById('topAvatarEl').style.color = u.textColor;
+  document.getElementById('topUserName').textContent = u.name;
+  document.getElementById('userPicker').classList.remove('open');
+
+  // Update initiator label
+  document.querySelector('#initiatorSelect option[value="me"]').textContent = `Ich (${u.name})`;
+  const rival = uid === 'moritz' ? 'Nina' : 'Moritz';
+  document.querySelector('#initiatorSelect option[value="rival"]').textContent = rival;
+
+  updatePendingBadge();
+  renderScore();
+  showToast(`👤 Eingeloggt als ${u.name}`);
+}
+
+function saveActivities() {
+  localStorage.setItem('sd_activities', JSON.stringify(activities));
+}
+
+// ===================== INIT =====================
+function addSampleData() {
+  if (activities.length > 0) return;
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  activities = [
+    { id: '1', user: 'moritz', disc: 'run', value: 5, pts: 25, date: today, note: 'Morgenlauf', valueLabel: '5 km', status: 'approved', createdAt: new Date().toISOString(), together: false },
+    { id: '2', user: 'nina', disc: 'gym', value: 1, pts: 30, date: today, note: '', valueLabel: '', status: 'approved', createdAt: new Date(Date.now()-3600000).toISOString(), together: false },
+    { id: '3', user: 'moritz', disc: 'steps', value: 8500, pts: 85, date: yesterday, note: '', valueLabel: '8500 Schritte', status: 'approved', createdAt: new Date(Date.now()-86400000).toISOString(), together: false },
+    { id: '4', user: 'nina', disc: 'physio', value: 30, pts: 20, date: yesterday, note: 'Yoga', valueLabel: '30 Min', status: 'pending', photo: null, createdAt: new Date(Date.now()-72000000).toISOString(), together: false },
+  ];
+  saveActivities();
+}
+
+addSampleData();
+renderScore();
+updatePendingBadge();
+</script>
+</body>
+</html>
