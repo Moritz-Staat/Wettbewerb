@@ -146,6 +146,17 @@ Wettbewerb/
 
 ## Changelog
 
+
+### v1.2.0 – 2026-06-28
+- Komplettes UI-Redesign im Spotify Design System
+  - Near-black Canvas `#121212`, Spotify Green `#1DB954` als Akzent
+  - Inter als Systemfont (Circular-Fallback)
+  - Track-List-Style für Aktivitäten (wie Spotify Song Rows)
+  - Leader Bar zeigt Punkteanteil visuell
+  - Bottom Sheet für User Switching
+  - Spotify-style Pill Chips, Cards, Toasts
+  - `prefers-reduced-motion` unterstützt
+
 ### v1.1.0 – 2026-06-28
 - Spielerin umbenannt: Nina → **Hanna**
 - Beispieldaten entfernt – sauberer Start
