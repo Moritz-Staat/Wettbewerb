@@ -353,7 +353,7 @@
     <div class="score-vs">VS</div>
     <div class="score-block rival" id="scoreBlockRival">
       <div class="score-num" id="scoreRival">0</div>
-      <div class="score-name" id="scoreNameRival">Nina</div>
+      <div class="score-name" id="scoreNameRival">Hanna</div>
       <div class="score-label">Punkte</div>
     </div>
   </div>
@@ -372,7 +372,7 @@
     <div class="stat-card">
       <div class="stat-card-label">Aktivitäten</div>
       <div class="stat-card-val" id="statActRival">0</div>
-      <div class="stat-card-sub" id="statActRivalName">Nina</div>
+      <div class="stat-card-sub" id="statActRivalName">Hanna</div>
     </div>
   </div>
 
@@ -446,7 +446,7 @@
       <label class="form-label">Wer hat initiiert?</label>
       <select class="form-input" id="initiatorSelect">
         <option value="me">Ich (Moritz)</option>
-        <option value="rival">Nina</option>
+        <option value="rival">Hanna</option>
       </select>
     </div>
 
@@ -517,10 +517,10 @@
         <div class="user-option-sub">Dein Account</div>
       </div>
     </div>
-    <div class="user-option" onclick="switchUser('nina')" id="opt-nina">
-      <div class="avatar rival">N</div>
+    <div class="user-option" onclick="switchUser('hanna')" id="opt-hanna">
+      <div class="avatar rival">H</div>
       <div>
-        <div class="user-option-name">Nina</div>
+        <div class="user-option-name">Hanna</div>
         <div class="user-option-sub">Konkurrentin</div>
       </div>
     </div>
@@ -534,7 +534,7 @@
 // ===================== STATE =====================
 const USERS = {
   moritz: { name: 'Moritz', initial: 'M', color: '#B8F04A', textColor: '#0D1B2A' },
-  nina:   { name: 'Nina',   initial: 'N', color: '#FF6B6B', textColor: '#fff' }
+  hanna:   { name: 'Hanna',   initial: 'H', color: '#FF6B6B', textColor: '#fff' }
 };
 
 let currentUser = 'moritz';
@@ -579,8 +579,8 @@ function getScores(period) {
     : activities;
   const approved = filtered.filter(a => a.status === 'approved' || a.disc === 'steps');
   const m = approved.filter(a => a.user === 'moritz').reduce((s, a) => s + a.pts, 0);
-  const n = approved.filter(a => a.user === 'nina').reduce((s, a) => s + a.pts, 0);
-  return { moritz: Math.round(m * 10) / 10, nina: Math.round(n * 10) / 10 };
+  const n = approved.filter(a => a.user === 'hanna').reduce((s, a) => s + a.pts, 0);
+  return { moritz: Math.round(m * 10) / 10, hanna: Math.round(n * 10) / 10 };
 }
 
 // ===================== UI HELPERS =====================
@@ -626,12 +626,12 @@ const DISC_ICONS = {
 function renderScore() {
   const scores = getScores(currentPeriod);
   document.getElementById('scoreMe').textContent = scores.moritz;
-  document.getElementById('scoreRival').textContent = scores.nina;
+  document.getElementById('scoreRival').textContent = scores.hanna;
 
   const meBlock = document.getElementById('scoreBlockMe');
   const rivBlock = document.getElementById('scoreBlockRival');
   meBlock.classList.remove('trailing'); rivBlock.classList.remove('leading');
-  if (scores.nina > scores.moritz) { meBlock.classList.add('trailing'); rivBlock.classList.add('leading'); }
+  if (scores.hanna > scores.moritz) { meBlock.classList.add('trailing'); rivBlock.classList.add('leading'); }
 
   // Stats
   const now = new Date();
@@ -643,7 +643,7 @@ function renderScore() {
     : activities;
   const approved = filtered.filter(a => a.status === 'approved' || a.disc === 'steps');
   document.getElementById('statActMe').textContent = approved.filter(a => a.user === 'moritz').length;
-  document.getElementById('statActRival').textContent = approved.filter(a => a.user === 'nina').length;
+  document.getElementById('statActRival').textContent = approved.filter(a => a.user === 'hanna').length;
 
   // Recent (last 5 approved)
   const recent = [...activities]
@@ -683,7 +683,7 @@ function renderPending() {
     return `<div class="pending-card" id="pcard-${a.id}">
       <div class="pending-card-header">
         <div class="pending-who">
-          <div class="avatar${a.user === 'nina' ? ' rival' : ''}">${USERS[a.user].initial}</div>
+          <div class="avatar${a.user === 'hanna' ? ' rival' : ''}">${USERS[a.user].initial}</div>
           <div>
             <div style="font-size:13px;font-weight:600;">${userName}</div>
             <div style="font-size:11px;color:var(--muted)">${formatDate(a.date)}</div>
@@ -697,7 +697,7 @@ function renderPending() {
       ${canApprove ? `<div class="pending-actions">
         <button class="btn-approve" onclick="approveActivity('${a.id}')">✓ Bestätigen</button>
         <button class="btn-reject" onclick="rejectActivity('${a.id}')">✗ Ablehnen</button>
-      </div>` : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:4px 0">Warte auf Bestätigung von ${a.user === 'moritz' ? 'Nina' : 'Moritz'}</div>`}
+      </div>` : `<div style="text-align:center;color:var(--muted);font-size:13px;padding:4px 0">Warte auf Bestätigung von ${a.user === 'moritz' ? 'Hanna' : 'Moritz'}</div>`}
     </div>`;
   }).join('');
 }
@@ -747,7 +747,7 @@ function renderHistory() {
     const [yr, mo] = key.split('-');
     const label = new Date(yr, mo-1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
     const mPts = acts.filter(a => a.user === 'moritz' && (a.status === 'approved' || a.disc === 'steps')).reduce((s,a) => s+a.pts, 0);
-    const nPts = acts.filter(a => a.user === 'nina' && (a.status === 'approved' || a.disc === 'steps')).reduce((s,a) => s+a.pts, 0);
+    const nPts = acts.filter(a => a.user === 'hanna' && (a.status === 'approved' || a.disc === 'steps')).reduce((s,a) => s+a.pts, 0);
     html += `<div class="month-group-title">${label} <span class="month-pts me-color">M:${Math.round(mPts)}</span> <span class="month-pts rival-color">N:${Math.round(nPts)}</span></div>`;
     acts.forEach(a => {
       const isMe = a.user === 'moritz';
@@ -904,7 +904,7 @@ function submitActivity() {
 
   // Also award initiator bonus to rival if they initiated
   if (togetherOn && initiator === 'rival') {
-    const rival = currentUser === 'moritz' ? 'nina' : 'moritz';
+    const rival = currentUser === 'moritz' ? 'hanna' : 'moritz';
     activities.push({
       id: Date.now().toString() + '_bonus',
       user: rival,
@@ -950,7 +950,7 @@ function switchUser(uid) {
 
   // Update initiator label
   document.querySelector('#initiatorSelect option[value="me"]').textContent = `Ich (${u.name})`;
-  const rival = uid === 'moritz' ? 'Nina' : 'Moritz';
+  const rival = uid === 'moritz' ? 'Hanna' : 'Moritz';
   document.querySelector('#initiatorSelect option[value="rival"]').textContent = rival;
 
   updatePendingBadge();
@@ -963,22 +963,4 @@ function saveActivities() {
 }
 
 // ===================== INIT =====================
-function addSampleData() {
-  if (activities.length > 0) return;
-  const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  activities = [
-    { id: '1', user: 'moritz', disc: 'run', value: 5, pts: 25, date: today, note: 'Morgenlauf', valueLabel: '5 km', status: 'approved', createdAt: new Date().toISOString(), together: false },
-    { id: '2', user: 'nina', disc: 'gym', value: 1, pts: 30, date: today, note: '', valueLabel: '', status: 'approved', createdAt: new Date(Date.now()-3600000).toISOString(), together: false },
-    { id: '3', user: 'moritz', disc: 'steps', value: 8500, pts: 85, date: yesterday, note: '', valueLabel: '8500 Schritte', status: 'approved', createdAt: new Date(Date.now()-86400000).toISOString(), together: false },
-    { id: '4', user: 'nina', disc: 'physio', value: 30, pts: 20, date: yesterday, note: 'Yoga', valueLabel: '30 Min', status: 'pending', photo: null, createdAt: new Date(Date.now()-72000000).toISOString(), together: false },
-  ];
-  saveActivities();
-}
-
-addSampleData();
-renderScore();
-updatePendingBadge();
-</script>
-</body>
-</html>
+// No sample data – clean start for Moritz & Hanna

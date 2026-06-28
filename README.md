@@ -140,4 +140,16 @@ Wettbewerb/
 | | Name |
 |---|---|
 | 🟢 | Moritz |
-| 🔴 | Nina |
+| 🔴 | Hanna |
+
+---
+
+## Changelog
+
+### v1.1.0 – 2026-06-28
+- Spielerin umbenannt: Nina → **Hanna**
+- Beispieldaten entfernt – sauberer Start
+- Avatar-Initial für Hanna auf **H** aktualisiert
+
+### v1.0.0 – 2026-06-28
+- Initiales Release: SportDuel App + vollständige Dokumentation
