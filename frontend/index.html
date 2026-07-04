@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#121212">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>SportDuel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-container">
+    <div class="auth-logo">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.077-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.795c3.532-1.07 9.404-.863 13.115 1.338a.937.937 0 01-.955 1.614z"/></svg>
+      <h1>SportDuel</h1>
+    </div>
+    <div id="auth-form-login" class="auth-form">
+      <div class="form-field">
+        <label class="form-label">Benutzername</label>
+        <input type="text" class="form-input" id="login-username" placeholder="Benutzername">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Passwort</label>
+        <input type="password" class="form-input" id="login-password" placeholder="Passwort">
+      </div>
+      <button class="btn-green" id="login-btn">Einloggen</button>
+      <p class="auth-switch">Noch kein Account? <a href="#" id="show-register">Registrieren</a></p>
+    </div>
+    <div id="auth-form-register" class="auth-form" style="display:none">
+      <div class="form-field">
+        <label class="form-label">Benutzername</label>
+        <input type="text" class="form-input" id="reg-username" placeholder="Benutzername">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Anzeigename</label>
+        <input type="text" class="form-input" id="reg-displayname" placeholder="Anzeigename">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Passwort</label>
+        <input type="password" class="form-input" id="reg-password" placeholder="Passwort">
+      </div>
+      <button class="btn-green" id="register-btn">Registrieren</button>
+      <p class="auth-switch">Schon ein Account? <a href="#" id="show-login">Einloggen</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- APP WRAPPER -->
+<div id="app-wrapper" style="display:none">
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.623.623 0 01-.277-1.215c3.809-.87 7.077-.496 9.712 1.115a.623.623 0 01.207.857zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.973-.519.781.781 0 01.519-.972c3.632-1.102 8.147-.568 11.234 1.328a.78.78 0 01.257 1.072zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71a.937.937 0 11-.543-1.795c3.532-1.07 9.404-.863 13.115 1.338a.937.937 0 01-.955 1.614z"/></svg>
+    SportDuel
+  </div>
+  <div class="user-pill" id="userPill">
+    <div class="avatar" id="topAvatar">?</div>
+    <span class="user-pill-name" id="topName">Laden...</span>
+  </div>
+</header>
+
+<!-- PAGE: SCORE -->
+<main id="page-score" class="page active">
+
+  <div class="score-hero">
+    <div class="score-period-row">
+      <button class="period-chip active" id="period-month">Dieser Monat</button>
+      <button class="period-chip" id="period-all">Gesamt</button>
+    </div>
+
+    <div class="score-versus">
+      <div class="score-player">
+        <div class="score-player-name" id="scoreMeName">Du</div>
+        <div class="score-num me-num" id="scoreMe">0</div>
+        <div class="score-label">Punkte</div>
+      </div>
+      <div class="vs-divider">vs</div>
+      <div class="score-player">
+        <div class="score-player-name" id="scoreRivalName">Rival</div>
+        <div class="score-num rival-num" id="scoreRival">0</div>
+        <div class="score-label">Punkte</div>
+      </div>
+    </div>
+
+    <div class="leader-bar">
+      <div class="leader-bar-fill" id="leaderFill" style="width:50%"></div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Aktivitaeten</div>
+      <div class="stat-card-num green" id="statMe">0</div>
+      <div class="stat-card-sub" id="statMeName">Du</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Aktivitaeten</div>
+      <div class="stat-card-num red" id="statRival">0</div>
+      <div class="stat-card-sub" id="statRivalName">Rival</div>
+    </div>
+  </div>
+
+  <div class="section-eyebrow">Zuletzt</div>
+  <div id="recentList"></div>
+
+</main>
+
+<!-- PAGE: LOG -->
+<main id="page-log" class="page">
+  <div class="page-title">Eintragen</div>
+
+  <div class="disc-grid">
+    <div class="disc-card" id="disc-steps">
+      <div class="disc-icon">&#x1F45F;</div>
+      <div class="disc-name">Schritte</div>
+      <div class="disc-rule">1 Pkt / 100 (ab 4k)</div>
+    </div>
+    <div class="disc-card" id="disc-run">
+      <div class="disc-icon">&#x1F3C3;</div>
+      <div class="disc-name">Joggen</div>
+      <div class="disc-rule">5 Pkt / km</div>
+    </div>
+    <div class="disc-card" id="disc-bike">
+      <div class="disc-icon">&#x1F6B4;</div>
+      <div class="disc-name">Fahrrad</div>
+      <div class="disc-rule">2 Pkt / km</div>
+    </div>
+    <div class="disc-card" id="disc-ebike">
+      <div class="disc-icon">&#x26A1;</div>
+      <div class="disc-name">E-Bike</div>
+      <div class="disc-rule">1 Pkt / km</div>
+    </div>
+    <div class="disc-card" id="disc-gym">
+      <div class="disc-icon">&#x1F3CB;&#xFE0F;</div>
+      <div class="disc-name">Gym</div>
+      <div class="disc-rule">30 Pkt pauschal</div>
+    </div>
+    <div class="disc-card" id="disc-physio">
+      <div class="disc-icon">&#x1F9D8;</div>
+      <div class="disc-name">Physio / Dehnen</div>
+      <div class="disc-rule">10 Pkt / 15 Min</div>
+    </div>
+    <div class="disc-card" id="disc-circus">
+      <div class="disc-icon">&#x1F3AA;</div>
+      <div class="disc-name">Zirkus / Moshpit</div>
+      <div class="disc-rule">15 Pkt / 30 Min</div>
+    </div>
+    <div class="disc-card" id="disc-free">
+      <div class="disc-icon">&#x1F300;</div>
+      <div class="disc-name">Freies Training</div>
+      <div class="disc-rule">Du gibst Punkte ein</div>
+    </div>
+  </div>
+
+  <div id="logForm" style="display:none">
+
+    <div class="form-field" id="valueGroup">
+      <label class="form-label" id="valueLabel">Kilometer</label>
+      <input type="number" class="form-input" id="valueInput"
+             placeholder="0" min="0" step="0.1">
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Datum</label>
+      <input type="date" class="form-input" id="dateInput">
+    </div>
+
+    <div class="toggle-row" id="togetherRow">
+      <span class="toggle-label">&#x1F91D; Gemeinsam gemacht</span>
+      <button class="toggle" id="togetherToggle"></button>
+    </div>
+
+    <div class="form-field" id="initiatorGroup" style="display:none">
+      <label class="form-label">Wer hat initiiert?</label>
+      <select class="form-input" id="initiatorSel">
+        <option value="me">Ich</option>
+        <option value="rival">Rival</option>
+      </select>
+    </div>
+
+    <div class="pts-preview">
+      <div class="pts-preview-label">Punkte</div>
+      <div class="pts-preview-num" id="ptsNum">0</div>
+    </div>
+
+    <div class="photo-upload" id="photoZone">
+      <input type="file" accept="image/*" id="photoInput">
+      <div class="photo-upload-icon">&#x1F4F8;</div>
+      <div class="photo-upload-text">Beweisfoto hochladen<br>
+        <span style="font-size:11px;opacity:.6">Pflicht fuer Approval</span>
+      </div>
+    </div>
+    <img class="photo-preview" id="photoPreview" src="" alt="">
+
+    <div class="form-field">
+      <label class="form-label">Notiz (optional)</label>
+      <input type="text" class="form-input" id="noteInput" placeholder="z.B. Morgenlauf im Park">
+    </div>
+
+    <button class="btn-green" id="submitBtn">
+      Eintragen &amp; senden
+    </button>
+  </div>
+</main>
+
+<!-- PAGE: PENDING -->
+<main id="page-pending" class="page">
+  <div class="page-title">Ausstehend</div>
+  <div id="pendingList"></div>
+</main>
+
+<!-- PAGE: HISTORY -->
+<main id="page-history" class="page">
+  <div class="page-title">Verlauf</div>
+  <div id="historyList"></div>
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-item active" id="nav-score">
+    <span class="nav-icon">&#x1F3C6;</span>Score
+  </button>
+  <button class="nav-item" id="nav-log">
+    <span class="nav-icon">&#x2795;</span>Eintragen
+  </button>
+  <button class="nav-item" id="nav-pending" style="position:relative">
+    <span class="nav-icon">&#x23F3;</span>Pending
+    <span class="nav-badge" id="pendingBadge">0</span>
+  </button>
+  <button class="nav-item" id="nav-history">
+    <span class="nav-icon">&#x1F4CB;</span>Verlauf
+  </button>
+</nav>
+
+</div><!-- /app-wrapper -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
