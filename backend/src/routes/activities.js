@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const pool = require('../db');
 const auth = require('../middleware/auth');
+const { sendPushToUser } = require('../push');
 
 const router = express.Router();
 
@@ -139,6 +140,20 @@ router.post('/', upload.single('photo'), async (req, res) => {
       }
     }
 
+    // Send push notification to rival
+    if (status === 'pending') {
+      const rivalResult2 = await pool.query('SELECT id, display_name FROM users WHERE id != $1 LIMIT 1', [req.user.id]);
+      if (rivalResult2.rows.length) {
+        const meResult = await pool.query('SELECT display_name FROM users WHERE id = $1', [req.user.id]);
+        const meName = meResult.rows[0]?.display_name || 'Jemand';
+        sendPushToUser(pool, rivalResult2.rows[0].id, {
+          title: 'Neue Aktivität!',
+          body: `${meName} hat eine Aktivität eingetragen. Bestätigen?`,
+          url: '/'
+        });
+      }
+    }
+
     // Return with username joined
     const full = await pool.query(
       `SELECT a.*, u.username, u.display_name FROM activities a JOIN users u ON u.id = a.user_id WHERE a.id = $1`,
@@ -171,6 +186,15 @@ router.post('/:id/approve', async (req, res) => {
       ['approved', id]
     );
 
+    // Send push notification to activity owner
+    const meResult = await pool.query('SELECT display_name FROM users WHERE id = $1', [req.user.id]);
+    const meName = meResult.rows[0]?.display_name || 'Dein Gegner';
+    sendPushToUser(pool, activity.user_id, {
+      title: 'Aktivität bestätigt!',
+      body: `${meName} hat deine Aktivität bestätigt. +${activity.points} Punkte!`,
+      url: '/'
+    });
+
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Approve error:', err);
@@ -194,6 +218,16 @@ router.post('/:id/reject', async (req, res) => {
     }
 
     await pool.query('DELETE FROM activities WHERE id = $1', [id]);
+
+    // Send push notification to activity owner
+    const meResult = await pool.query('SELECT display_name FROM users WHERE id = $1', [req.user.id]);
+    const meName = meResult.rows[0]?.display_name || 'Dein Gegner';
+    sendPushToUser(pool, activity.user_id, {
+      title: 'Aktivität abgelehnt',
+      body: `${meName} hat deine Aktivität abgelehnt.`,
+      url: '/'
+    });
+
     res.json({ message: 'Activity rejected and deleted' });
   } catch (err) {
     console.error('Reject error:', err);

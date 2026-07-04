@@ -101,3 +101,18 @@ export async function getScores(period) {
 export async function getStats(months = 6) {
   return apiFetch(`/users/stats?months=${months}`);
 }
+
+export async function getVapidKey() {
+  return apiFetch('/push/vapid-key');
+}
+
+export async function subscribePush(subscription) {
+  return apiFetch('/push/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({ subscription }),
+  });
+}
+
+export async function unsubscribePush() {
+  return apiFetch('/push/subscribe', { method: 'DELETE' });
+}

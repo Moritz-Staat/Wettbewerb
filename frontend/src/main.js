@@ -7,6 +7,7 @@ import { selectDisc, flipTogether, calcPreview, onPhoto, submitActivity } from '
 import { initAuth } from './ui/auth.js';
 import { toast } from './ui/toast.js';
 import { initLightbox } from './ui/lightbox.js';
+import { initPush } from './ui/push.js';
 
 // App state
 const appState = {
@@ -60,6 +61,7 @@ async function initApp() {
   showApp();
   renderScore();
   updateBadge();
+  initPush();
 }
 
 // Wire up event listeners
