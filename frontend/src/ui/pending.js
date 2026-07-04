@@ -1,6 +1,7 @@
 import { getActivities, approveActivity, rejectActivity } from '../api.js';
 import { DISC_LABEL, DISC_ICON } from '../config.js';
 import { toast } from './toast.js';
+import { openLightbox } from './lightbox.js';
 import { renderScore } from './score.js';
 import { getAppState } from '../main.js';
 
@@ -64,6 +65,11 @@ export async function renderPending() {
     });
     el.querySelectorAll('[data-reject-id]').forEach(btn => {
       btn.addEventListener('click', () => reject(btn.dataset.rejectId));
+    });
+
+    el.querySelectorAll('.pending-img img').forEach(img => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => openLightbox(img.src));
     });
   } catch (err) {
     console.error('renderPending error:', err);

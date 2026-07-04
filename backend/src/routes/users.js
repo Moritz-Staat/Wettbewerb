@@ -81,4 +81,72 @@ router.get('/scores', auth, async (req, res) => {
   }
 });
 
+// GET /stats — monthly point totals + discipline breakdown
+router.get('/stats', auth, async (req, res) => {
+  try {
+    const months = parseInt(req.query.months, 10) || 6;
+
+    // Find rival
+    const rivalResult = await pool.query(
+      'SELECT id FROM users WHERE id != $1 LIMIT 1',
+      [req.user.id]
+    );
+    const rivalId = rivalResult.rows[0]?.id;
+
+    // Monthly points for both users
+    const monthlyResult = await pool.query(`
+      SELECT
+        to_char(date, 'YYYY-MM') AS month,
+        user_id,
+        COALESCE(SUM(points), 0) AS points
+      FROM activities
+      WHERE status = 'approved'
+        AND date >= (date_trunc('month', CURRENT_DATE) - ($1 - 1) * interval '1 month')
+      GROUP BY month, user_id
+      ORDER BY month
+    `, [months]);
+
+    // Build month list
+    const monthSet = new Set();
+    const now = new Date();
+    for (let i = months - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.toISOString().slice(0, 7);
+      monthSet.add(key);
+    }
+    const monthList = [...monthSet].sort();
+
+    const meByMonth = {};
+    const rivalByMonth = {};
+    for (const row of monthlyResult.rows) {
+      if (row.user_id === req.user.id) {
+        meByMonth[row.month] = Number(row.points);
+      } else if (row.user_id === rivalId) {
+        rivalByMonth[row.month] = Number(row.points);
+      }
+    }
+
+    const me = monthList.map(m => meByMonth[m] || 0);
+    const rival = monthList.map(m => rivalByMonth[m] || 0);
+
+    // Points by discipline for current user
+    const discResult = await pool.query(`
+      SELECT disc, COALESCE(SUM(points), 0) AS points
+      FROM activities
+      WHERE status = 'approved' AND user_id = $1
+      GROUP BY disc
+    `, [req.user.id]);
+
+    const byDisc = {};
+    for (const row of discResult.rows) {
+      byDisc[row.disc] = Number(row.points);
+    }
+
+    res.json({ months: monthList, me, rival, byDisc });
+  } catch (err) {
+    console.error('Stats error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

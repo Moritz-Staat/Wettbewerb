@@ -1,6 +1,7 @@
 import { renderScore } from './score.js';
 import { renderPending } from './pending.js';
 import { renderHistory } from './history.js';
+import { renderStats } from './stats.js';
 
 let currentPeriod = 'month';
 
@@ -16,6 +17,7 @@ export function go(page) {
   if (page === 'score')   renderScore();
   if (page === 'pending') renderPending();
   if (page === 'history') renderHistory();
+  if (page === 'stats')   renderStats();
 }
 
 export function setPeriod(period) {

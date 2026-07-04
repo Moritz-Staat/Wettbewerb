@@ -220,6 +220,19 @@
   <div id="historyList"></div>
 </main>
 
+<!-- PAGE: STATS -->
+<main id="page-stats" class="page">
+  <div class="page-title">Statistiken</div>
+  <div class="section-eyebrow">Punkte-Verlauf</div>
+  <div class="stat-chart-container">
+    <canvas id="pointsChart"></canvas>
+  </div>
+  <div class="section-eyebrow" style="margin-top:24px">Aktivitäts-Verteilung</div>
+  <div class="stat-chart-container">
+    <canvas id="discChart"></canvas>
+  </div>
+</main>
+
 <!-- BOTTOM NAV -->
 <nav class="nav">
   <button class="nav-item active" id="nav-score">
@@ -235,7 +248,16 @@
   <button class="nav-item" id="nav-history">
     <span class="nav-icon">&#x1F4CB;</span>Verlauf
   </button>
+  <button class="nav-item" id="nav-stats">
+    <span class="nav-icon">&#x1F4CA;</span>Stats
+  </button>
 </nav>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxClose">&times;</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="Beweisfoto">
+</div>
 
 </div><!-- /app-wrapper -->
 

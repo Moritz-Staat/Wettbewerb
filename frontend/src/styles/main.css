@@ -381,6 +381,20 @@ body {
 .month-score-rival{ font-size: 13px; font-weight: 700; color: var(--rival); }
 .month-divider { height: 1px; background: var(--border); margin-bottom: 4px; }
 
+/* -- STAT CHARTS -- */
+.stat-chart-container {
+  background: var(--surface-2);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+}
+.stat-chart-container canvas {
+  width: 100% !important;
+  max-height: 250px;
+}
+
 /* -- BOTTOM NAV -- */
 .nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
@@ -443,6 +457,56 @@ body {
   color: var(--green); text-decoration: none; font-weight: 600;
 }
 .auth-switch a:hover { text-decoration: underline; }
+
+/* LIGHTBOX */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.lightbox-overlay.open {
+  display: flex;
+}
+.lightbox-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  transition: transform var(--dur-base) var(--ease);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.lightbox-img.zoomed {
+  transform: scale(2);
+  cursor: grab;
+}
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 501;
+  transition: background var(--dur-base) var(--ease);
+}
+.lightbox-close:hover {
+  background: var(--surface-3);
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0ms !important; }

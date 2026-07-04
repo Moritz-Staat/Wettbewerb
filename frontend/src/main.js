@@ -6,6 +6,7 @@ import { go, setPeriod } from './ui/navigation.js';
 import { selectDisc, flipTogether, calcPreview, onPhoto, submitActivity } from './ui/log.js';
 import { initAuth } from './ui/auth.js';
 import { toast } from './ui/toast.js';
+import { initLightbox } from './ui/lightbox.js';
 
 // App state
 const appState = {
@@ -68,6 +69,7 @@ function wireEvents() {
   document.getElementById('nav-log').addEventListener('click', () => go('log'));
   document.getElementById('nav-pending').addEventListener('click', () => go('pending'));
   document.getElementById('nav-history').addEventListener('click', () => go('history'));
+  document.getElementById('nav-stats').addEventListener('click', () => go('stats'));
 
   // Period chips
   document.getElementById('period-month').addEventListener('click', () => setPeriod('month'));
@@ -96,6 +98,7 @@ function wireEvents() {
 
 // Boot
 wireEvents();
+initLightbox();
 initAuth(async () => {
   await initApp();
 });

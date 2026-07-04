@@ -97,3 +97,7 @@ export async function getScores(period) {
   const query = period ? `?period=${period}` : '';
   return apiFetch(`/users/scores${query}`);
 }
+
+export async function getStats(months = 6) {
+  return apiFetch(`/users/stats?months=${months}`);
+}
