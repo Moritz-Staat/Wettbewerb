@@ -10,10 +10,13 @@ Eine Web App für zwei Personen, die gegeneinander Sport machen und Punkte samme
 |---|---|
 | Leaderboard | Live-Punktestand beider Spieler, Monat & Gesamt |
 | Aktivität eintragen | Alle Disziplinen mit Live-Punkte-Vorschau |
-| Beweisfoto | Pflicht-Upload für alle nicht-automatischen Aktivitäten |
+| Beweisfoto | Pflicht-Upload mit Fullscreen-Lightbox (Zoom) |
 | Approval-Queue | Aktivitäten müssen vom Gegner bestätigt werden |
 | Verlauf | History nach Monaten gruppiert, Soft-Reset monatlich |
 | Echte Accounts | JWT-basierte Authentifizierung mit Login/Register |
+| Statistiken | Punkte-Verlauf (Liniendiagramm) + Disziplin-Verteilung (Donut) |
+| Push Notifications | Benachrichtigungen bei neuen/bestätigten/abgelehnten Aktivitäten |
+| Wochen-Recap | Automatische Zusammenfassung jeden Montag um 9:00 |
 
 ---
 
@@ -71,6 +74,8 @@ Gegner: Ablehnen    ->  Aktivität wird gelöscht
 | Datenbank | PostgreSQL 16 |
 | Auth | JWT (bcrypt, 30d Token) |
 | Foto-Upload | Multer (Disk Storage) |
+| Push | Web Push API (VAPID) + Service Worker |
+| Charts | Chart.js 4 |
 | Deployment | Docker Compose (self-hosted) |
 
 ---
@@ -91,7 +96,10 @@ cd Wettbewerb
 
 # Umgebungsvariablen konfigurieren
 cp .env.example .env
-# .env bearbeiten: POSTGRES_PASSWORD und JWT_SECRET setzen!
+# .env bearbeiten: POSTGRES_PASSWORD, JWT_SECRET und VAPID Keys setzen!
+
+# VAPID Keys generieren (für Push Notifications)
+npx web-push generate-vapid-keys
 
 # Starten
 docker compose up -d --build
@@ -105,6 +113,8 @@ Die App ist dann unter `http://localhost:8082` erreichbar.
 |---|---|---|
 | `POSTGRES_PASSWORD` | Datenbank-Passwort | `sportduel_secret` |
 | `JWT_SECRET` | Secret für Token-Signierung | `change-me-in-production-please` |
+| `VAPID_PUBLIC_KEY` | VAPID Public Key (Push) | _(leer = Push deaktiviert)_ |
+| `VAPID_PRIVATE_KEY` | VAPID Private Key (Push) | _(leer = Push deaktiviert)_ |
 
 ### Port ändern
 
@@ -152,14 +162,17 @@ Wettbewerb/
 │   ├── Dockerfile
 │   ├── package.json
 │   └── src/
-│       ├── index.js            # Express App
+│       ├── index.js            # Express App + Digest Scheduler
 │       ├── db.js               # PostgreSQL Pool
+│       ├── push.js             # Web Push (VAPID) Helper
+│       ├── digest.js           # Wöchentlicher Recap
 │       ├── middleware/
 │       │   └── auth.js         # JWT Middleware
 │       └── routes/
 │           ├── auth.js         # Register, Login
-│           ├── activities.js   # CRUD + Approve/Reject
-│           └── users.js        # Me, Rival, Scores
+│           ├── activities.js   # CRUD + Approve/Reject + Push
+│           ├── users.js        # Me, Rival, Scores, Stats
+│           └── push.js         # Push Subscribe/Unsubscribe
 ├── frontend/
 │   ├── Dockerfile
 │   ├── nginx.conf
@@ -179,8 +192,11 @@ Wettbewerb/
 │           ├── log.js          # Aktivität eintragen
 │           ├── pending.js      # Approval Queue
 │           ├── history.js      # Verlauf
+│           ├── stats.js        # Statistik-Charts (Chart.js)
+│           ├── lightbox.js     # Foto-Lightbox mit Zoom
+│           ├── push.js         # Push-Subscription
 │           ├── navigation.js   # Seitenwechsel
-│           └── toast.js        # Notifications
+│           └── toast.js        # Toast-Notifications
 └── index.html                  # Legacy Single-File (v1.2.0)
 ```
 
@@ -202,6 +218,7 @@ Wettbewerb/
 | GET | `/me` | JWT | Eigenes Profil |
 | GET | `/rival` | JWT | Gegner-Profil |
 | GET | `/scores?period=month\|all` | JWT | Punktestand |
+| GET | `/stats?months=6` | JWT | Monatliche Statistiken + Disziplin-Breakdown |
 
 ### Activities (`/api/activities`)
 
@@ -212,6 +229,14 @@ Wettbewerb/
 | POST | `/:id/approve` | JWT | Aktivität bestätigen (nur Gegner) |
 | POST | `/:id/reject` | JWT | Aktivität ablehnen (nur Gegner) |
 
+### Push (`/api/push`)
+
+| Method | Endpoint | Auth | Beschreibung |
+|---|---|---|---|
+| GET | `/vapid-key` | - | VAPID Public Key abrufen |
+| POST | `/subscribe` | JWT | Push-Subscription registrieren |
+| DELETE | `/subscribe` | JWT | Push-Subscription entfernen |
+
 ---
 
 ## Geplante Erweiterungen
@@ -219,15 +244,22 @@ Wettbewerb/
 - [x] Backend + echte Accounts
 - [x] Code-Refactoring in modulare Struktur
 - [x] Foto-Upload auf Server statt Base64
-- [ ] Push Notifications via Service Worker
-- [ ] Statistik-Charts (Punkte über Zeit)
-- [ ] Foto-Lightbox beim Approve
-- [ ] Anbindung Apple Health / Google Fit für Schritte
-- [ ] Wöchentlicher Rückblick per Nachricht
+- [x] Push Notifications via Service Worker (VAPID)
+- [x] Statistik-Charts (Punkte-Verlauf + Disziplin-Verteilung)
+- [x] Foto-Lightbox mit Zoom beim Approve
+- [x] Wöchentlicher Recap per Push (Montag 9:00)
+- [ ] Anbindung Apple Health / Google Fit (erfordert nativen App-Wrapper)
 
 ---
 
 ## Changelog
+
+### v2.1.0 – 2026-07-05
+- Statistik-Charts mit Chart.js (Punkte-Verlauf + Disziplin-Donut)
+- Foto-Lightbox mit Fullscreen-Zoom im Approval-Flow
+- Web Push Notifications (VAPID) bei neuen/bestätigten/abgelehnten Aktivitäten
+- Wöchentlicher Digest per Push jeden Montag um 9:00
+- Neuer Stats-Tab in der Navigation
 
 ### v2.0.0 – 2026-07-05
 - Kompletter Umbau auf Full-Stack-Architektur
