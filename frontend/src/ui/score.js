@@ -1,5 +1,6 @@
 import { getActivities, getScores } from '../api.js';
 import { DISC_LABEL, DISC_ICON } from '../config.js';
+import { ICON } from '../icons.js';
 import { getPeriod } from './navigation.js';
 import { getAppState } from '../main.js';
 
@@ -78,7 +79,7 @@ export async function renderScore() {
     const el = document.getElementById('recentList');
     el.innerHTML = recent.length
       ? recent.map(a => trackRowHTML(a, me)).join('')
-      : `<div class="empty-state"><div class="empty-icon">\u{1F3C5}</div><p>Noch keine Aktivit\u00E4ten.<br>Leg los!</p></div>`;
+      : `<div class="empty-state"><div class="empty-icon">${ICON.trophy}</div><p>Noch keine Aktivit\u00E4ten.<br>Leg los!</p></div>`;
   } catch (err) {
     console.error('renderScore error:', err);
   }

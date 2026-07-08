@@ -1,5 +1,6 @@
 import { getActivities } from '../api.js';
 import { DISC_LABEL, DISC_ICON } from '../config.js';
+import { ICON } from '../icons.js';
 import { getAppState } from '../main.js';
 
 function fmtDate(iso) {
@@ -14,7 +15,7 @@ export async function renderHistory() {
   try {
     const activities = await getActivities();
     if (!activities || !activities.length) {
-      el.innerHTML = `<div class="empty-state"><div class="empty-icon">\u{1F4CB}</div><p>Noch keine Eintr\u00E4ge.</p></div>`;
+      el.innerHTML = `<div class="empty-state"><div class="empty-icon">${ICON.list}</div><p>Noch keine Eintr\u00E4ge.</p></div>`;
       return;
     }
 

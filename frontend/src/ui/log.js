@@ -1,6 +1,7 @@
 import { createActivity } from '../api.js';
 import { calcPts } from '../scoring.js';
 import { DISC_LABEL } from '../config.js';
+import { ICON } from '../icons.js';
 import { toast } from './toast.js';
 import { updateBadge } from './pending.js';
 import { getAppState } from '../main.js';
@@ -98,12 +99,12 @@ export async function submitActivity() {
   const ini = document.getElementById('initiatorSel').value;
 
   if (!['steps', 'gym'].includes(selDisc) && !photoFile) {
-    toast('\u{1F4F8} Bitte Beweisfoto hochladen!');
+    toast('Bitte Beweisfoto hochladen!');
     return;
   }
   const pts = calcPts(selDisc, v, together, ini, 'me');
   if (pts <= 0 && selDisc !== 'gym') {
-    toast('\u26A0\uFE0F Bitte Wert eingeben!');
+    toast('Bitte Wert eingeben!');
     return;
   }
 
@@ -119,13 +120,13 @@ export async function submitActivity() {
   try {
     await createActivity(formData);
     updateBadge();
-    toast(selDisc === 'steps' ? '\u2705 Schritte eingetragen!' : '\u23F3 Gesendet! Warte auf Best\u00E4tigung.');
+    toast(selDisc === 'steps' ? 'Schritte eingetragen!' : 'Gesendet! Warte auf Best\u00E4tigung.');
 
     selDisc = null;
     photoFile = null;
     document.querySelectorAll('.disc-card').forEach(c => c.classList.remove('selected'));
     document.getElementById('logForm').style.display = 'none';
   } catch (err) {
-    toast('\u274C Fehler: ' + err.message);
+    toast('Fehler: ' + err.message);
   }
 }
