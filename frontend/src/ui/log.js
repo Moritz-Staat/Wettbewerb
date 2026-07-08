@@ -10,56 +10,67 @@ let selDisc = null;
 let together = false;
 let photoFile = null;
 
+const DISC_CONFIG = {
+  steps:  { label: 'Anzahl Schritte', placeholder: '8000', step: '1', inputmode: 'numeric', unit: 'Schritte', needsPhoto: false, needsTogether: false, minVal: 4000, minMsg: 'Mindestens 4.000 Schritte f\u00FCr Punkte' },
+  run:    { label: 'Kilometer',       placeholder: '5.0',  step: '0.1', inputmode: 'decimal', unit: 'km', needsPhoto: true, needsTogether: true, minVal: 0.1, minMsg: 'Bitte Kilometer eingeben' },
+  bike:   { label: 'Kilometer',       placeholder: '15',   step: '0.1', inputmode: 'decimal', unit: 'km', needsPhoto: true, needsTogether: true, minVal: 0.1, minMsg: 'Bitte Kilometer eingeben' },
+  ebike:  { label: 'Kilometer',       placeholder: '20',   step: '0.1', inputmode: 'decimal', unit: 'km', needsPhoto: true, needsTogether: true, minVal: 0.1, minMsg: 'Bitte Kilometer eingeben' },
+  gym:    { label: null,              placeholder: null,   step: null,  inputmode: null,      unit: null, needsPhoto: true, needsTogether: true, minVal: null, minMsg: null },
+  physio: { label: 'Minuten',         placeholder: '30',   step: '1', inputmode: 'numeric', unit: 'Min', needsPhoto: true, needsTogether: true, minVal: 15, minMsg: 'Mindestens 15 Minuten f\u00FCr Punkte' },
+  circus: { label: 'Minuten',         placeholder: '60',   step: '1', inputmode: 'numeric', unit: 'Min', needsPhoto: true, needsTogether: true, minVal: 30, minMsg: 'Mindestens 30 Minuten f\u00FCr Punkte' },
+  free:   { label: 'Punkte',          placeholder: '20',   step: '1', inputmode: 'numeric', unit: 'Pkt', needsPhoto: true, needsTogether: true, minVal: 1, minMsg: 'Bitte Punkte eingeben' },
+};
+
 export function selectDisc(disc) {
   selDisc = disc;
+  const cfg = DISC_CONFIG[disc];
+  if (!cfg) return;
+
   document.querySelectorAll('.disc-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('disc-' + disc).classList.add('selected');
   document.getElementById('logForm').style.display = 'block';
+
+  // Reset state
   photoFile = null;
-  document.getElementById('photoPreview').style.display = 'none';
-  document.getElementById('valueInput').value = '';
-  document.getElementById('noteInput').value = '';
   together = false;
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('noteInput').value = '';
   document.getElementById('togetherToggle').classList.remove('on');
   document.getElementById('initiatorGroup').style.display = 'none';
 
-  const vg = document.getElementById('valueGroup');
-  const vl = document.getElementById('valueLabel');
-  const tr = document.getElementById('togetherRow');
+  // Date
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('dateInput').value = today;
 
-  if (disc === 'steps') {
-    vg.style.display = 'block'; vl.textContent = 'Anzahl Schritte';
-    document.getElementById('valueInput').placeholder = '8000';
-    tr.style.display = 'none';
-    document.getElementById('photoZone').style.display = 'none';
-    document.getElementById('submitBtn').textContent = 'Schritte eintragen';
-  } else if (['run', 'bike', 'ebike'].includes(disc)) {
-    vg.style.display = 'block'; vl.textContent = 'Kilometer';
-    document.getElementById('valueInput').placeholder = '5.0';
-    tr.style.display = 'flex'; document.getElementById('photoZone').style.display = 'block';
-    document.getElementById('submitBtn').textContent = 'Eintragen & zur Best\u00E4tigung senden';
-  } else if (disc === 'gym') {
-    vg.style.display = 'none'; tr.style.display = 'flex';
-    document.getElementById('photoZone').style.display = 'block';
-    document.getElementById('submitBtn').textContent = 'Eintragen & zur Best\u00E4tigung senden';
-  } else if (disc === 'physio') {
-    vg.style.display = 'block'; vl.textContent = 'Minuten';
-    document.getElementById('valueInput').placeholder = '30';
-    tr.style.display = 'flex'; document.getElementById('photoZone').style.display = 'block';
-    document.getElementById('submitBtn').textContent = 'Eintragen & zur Best\u00E4tigung senden';
-  } else if (disc === 'circus') {
-    vg.style.display = 'block'; vl.textContent = 'Minuten';
-    document.getElementById('valueInput').placeholder = '60';
-    tr.style.display = 'flex'; document.getElementById('photoZone').style.display = 'block';
-    document.getElementById('submitBtn').textContent = 'Eintragen & zur Best\u00E4tigung senden';
-  } else if (disc === 'free') {
-    vg.style.display = 'block'; vl.textContent = 'Punkte (selbst vergeben)';
-    document.getElementById('valueInput').placeholder = '20';
-    tr.style.display = 'flex'; document.getElementById('photoZone').style.display = 'block';
-    document.getElementById('submitBtn').textContent = 'Eintragen & zur Best\u00E4tigung senden';
+  // Value input
+  const vg = document.getElementById('valueGroup');
+  const vi = document.getElementById('valueInput');
+  const vl = document.getElementById('valueLabel');
+
+  if (cfg.label) {
+    vg.style.display = 'block';
+    vl.textContent = cfg.label;
+    vi.value = '';
+    vi.placeholder = cfg.placeholder;
+    vi.step = cfg.step;
+    vi.inputMode = cfg.inputmode;
+    vi.min = cfg.minVal > 0 ? '0' : '0';
+  } else {
+    vg.style.display = 'none';
+    vi.value = '';
   }
+
+  // Together toggle
+  document.getElementById('togetherRow').style.display = cfg.needsTogether ? 'flex' : 'none';
+
+  // Photo
+  document.getElementById('photoZone').style.display = cfg.needsPhoto ? 'block' : 'none';
+  document.getElementById('photoInput').value = '';
+
+  // Submit button
+  document.getElementById('submitBtn').textContent =
+    disc === 'steps' ? 'Schritte eintragen' : 'Eintragen & zur Best\u00E4tigung senden';
+
   calcPreview();
   document.getElementById('logForm').scrollIntoView({ behavior: 'smooth' });
 }
@@ -93,20 +104,33 @@ export function onPhoto(e) {
 
 export async function submitActivity() {
   if (!selDisc) return;
+  const cfg = DISC_CONFIG[selDisc];
+  if (!cfg) return;
+
   const v = parseFloat(document.getElementById('valueInput').value) || (selDisc === 'gym' ? 1 : 0);
   const date = document.getElementById('dateInput').value;
   const note = document.getElementById('noteInput').value.trim();
   const ini = document.getElementById('initiatorSel').value;
 
-  if (!['steps', 'gym'].includes(selDisc) && !photoFile) {
+  // Validate value
+  if (cfg.minVal !== null && v < cfg.minVal) {
+    toast(cfg.minMsg);
+    return;
+  }
+
+  // Validate photo
+  if (cfg.needsPhoto && !photoFile) {
     toast('Bitte Beweisfoto hochladen!');
     return;
   }
-  const pts = calcPts(selDisc, v, together, ini, 'me');
-  if (pts <= 0 && selDisc !== 'gym') {
-    toast('Bitte Wert eingeben!');
+
+  // Validate date
+  if (!date) {
+    toast('Bitte Datum ausw\u00E4hlen');
     return;
   }
+
+  const pts = calcPts(selDisc, v, together, ini, 'me');
 
   const formData = new FormData();
   formData.append('disc', selDisc);
