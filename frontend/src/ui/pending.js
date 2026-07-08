@@ -30,7 +30,7 @@ export async function renderPending() {
       const userName = isOwn ? me.displayName : (state.rival?.displayName || 'Rival');
       const initial = userName.charAt(0).toUpperCase();
       const rivalName = isOwn ? (state.rival?.displayName || 'Rival') : me.displayName;
-      const canApprove = !isOwn;
+      const canApprove = !isOwn || !state.rival;
       const photoSrc = a.photo ? (a.photo.startsWith('http') || a.photo.startsWith('/') ? a.photo : '/uploads/' + a.photo) : null;
 
       return `<div class="pending-card">
@@ -84,17 +84,17 @@ export async function approve(id) {
     renderPending();
     renderScore();
   } catch (err) {
-    toast(' Fehler: ' + err.message);
+    toast('Fehler: ' + err.message);
   }
 }
 
 export async function reject(id) {
   try {
     await rejectActivity(id);
-    toast(' Abgelehnt');
+    toast('Abgelehnt');
     renderPending();
   } catch (err) {
-    toast(' Fehler: ' + err.message);
+    toast('Fehler: ' + err.message);
   }
 }
 

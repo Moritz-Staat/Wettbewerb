@@ -177,8 +177,13 @@ router.post('/:id/approve', async (req, res) => {
     }
 
     const activity = actResult.rows[0];
+
+    // Allow self-approval only when no rival exists (single-user mode)
     if (activity.user_id === req.user.id) {
-      return res.status(403).json({ error: 'Cannot approve your own activity' });
+      const userCount = await pool.query('SELECT COUNT(*)::int AS cnt FROM users');
+      if (userCount.rows[0].cnt >= 2) {
+        return res.status(403).json({ error: 'Cannot approve your own activity' });
+      }
     }
 
     const result = await pool.query(
@@ -213,8 +218,12 @@ router.post('/:id/reject', async (req, res) => {
     }
 
     const activity = actResult.rows[0];
+
     if (activity.user_id === req.user.id) {
-      return res.status(403).json({ error: 'Cannot reject your own activity' });
+      const userCount = await pool.query('SELECT COUNT(*)::int AS cnt FROM users');
+      if (userCount.rows[0].cnt >= 2) {
+        return res.status(403).json({ error: 'Cannot reject your own activity' });
+      }
     }
 
     await pool.query('DELETE FROM activities WHERE id = $1', [id]);
