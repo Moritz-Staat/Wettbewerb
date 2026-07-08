@@ -2,10 +2,12 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#121212">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SportDuel">
+<link rel="manifest" href="/manifest.json">
 <title>SportDuel</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -21,11 +23,11 @@
     <div id="auth-form-login" class="auth-form">
       <div class="form-field">
         <label class="form-label">Benutzername</label>
-        <input type="text" class="form-input" id="login-username" placeholder="Benutzername">
+        <input type="text" class="form-input" id="login-username" placeholder="Benutzername" autocomplete="username">
       </div>
       <div class="form-field">
         <label class="form-label">Passwort</label>
-        <input type="password" class="form-input" id="login-password" placeholder="Passwort">
+        <input type="password" class="form-input" id="login-password" placeholder="Passwort" autocomplete="current-password">
       </div>
       <button class="btn-green" id="login-btn">Einloggen</button>
       <p class="auth-switch">Noch kein Account? <a href="#" id="show-register">Registrieren</a></p>
@@ -33,15 +35,15 @@
     <div id="auth-form-register" class="auth-form" style="display:none">
       <div class="form-field">
         <label class="form-label">Benutzername</label>
-        <input type="text" class="form-input" id="reg-username" placeholder="Benutzername">
+        <input type="text" class="form-input" id="reg-username" placeholder="Benutzername" autocomplete="username">
       </div>
       <div class="form-field">
         <label class="form-label">Anzeigename</label>
-        <input type="text" class="form-input" id="reg-displayname" placeholder="Anzeigename">
+        <input type="text" class="form-input" id="reg-displayname" placeholder="Anzeigename" autocomplete="name">
       </div>
       <div class="form-field">
         <label class="form-label">Passwort</label>
-        <input type="password" class="form-input" id="reg-password" placeholder="Passwort">
+        <input type="password" class="form-input" id="reg-password" placeholder="Passwort" autocomplete="new-password">
       </div>
       <button class="btn-green" id="register-btn">Registrieren</button>
       <p class="auth-switch">Schon ein Account? <a href="#" id="show-login">Einloggen</a></p>
@@ -162,7 +164,7 @@
     <div class="form-field" id="valueGroup">
       <label class="form-label" id="valueLabel">Kilometer</label>
       <input type="number" class="form-input" id="valueInput"
-             placeholder="0" min="0" step="0.1">
+             placeholder="0" min="0" step="0.1" inputmode="decimal">
     </div>
 
     <div class="form-field">
@@ -189,7 +191,7 @@
     </div>
 
     <div class="photo-upload" id="photoZone">
-      <input type="file" accept="image/*" id="photoInput">
+      <input type="file" accept="image/*" capture="environment" id="photoInput">
       <div class="photo-upload-icon">&#x1F4F8;</div>
       <div class="photo-upload-text">Beweisfoto hochladen<br>
         <span style="font-size:11px;opacity:.6">Pflicht fuer Approval</span>
