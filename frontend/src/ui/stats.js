@@ -9,14 +9,14 @@ let pointsChartInstance = null;
 let discChartInstance = null;
 
 const DISC_COLORS = {
-  steps:  '#1DB954',
-  run:    '#F15E6C',
+  steps:  '#7C3AED',
+  run:    '#F0047F',
   bike:   '#FFB347',
   ebike:  '#4FC3F7',
-  gym:    '#CE93D8',
-  physio: '#81C784',
+  gym:    '#8B5CF6',
+  physio: '#00FF85',
   circus: '#FF8A65',
-  free:   '#A7A7A7',
+  free:   '#A1A1AA',
 };
 
 export async function renderStats() {
@@ -46,20 +46,20 @@ export async function renderStats() {
           {
             label: meName,
             data: data.me,
-            borderColor: '#1DB954',
-            backgroundColor: 'rgba(29, 185, 84, 0.1)',
+            borderColor: '#00FF85',
+            backgroundColor: 'rgba(0, 255, 133, 0.08)',
             tension: 0.3,
             fill: true,
-            pointBackgroundColor: '#1DB954',
+            pointBackgroundColor: '#00FF85',
           },
           {
             label: rivalName,
             data: data.rival,
-            borderColor: '#F15E6C',
-            backgroundColor: 'rgba(241, 94, 108, 0.1)',
+            borderColor: '#F0047F',
+            backgroundColor: 'rgba(240, 4, 127, 0.08)',
             tension: 0.3,
             fill: true,
-            pointBackgroundColor: '#F15E6C',
+            pointBackgroundColor: '#F0047F',
           },
         ],
       },
@@ -68,17 +68,17 @@ export async function renderStats() {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: '#A7A7A7', font: { family: 'Inter', weight: '600' } },
+            labels: { color: '#A1A1AA', font: { family: 'Inter', weight: '600' } },
           },
         },
         scales: {
           x: {
-            grid: { color: '#3E3E3E' },
-            ticks: { color: '#A7A7A7', font: { family: 'Inter' } },
+            grid: { color: '#3A3A5C' },
+            ticks: { color: '#A1A1AA', font: { family: 'Inter' } },
           },
           y: {
-            grid: { color: '#3E3E3E' },
-            ticks: { color: '#A7A7A7', font: { family: 'Inter' } },
+            grid: { color: '#3A3A5C' },
+            ticks: { color: '#A1A1AA', font: { family: 'Inter' } },
             beginAtZero: true,
           },
         },
@@ -90,7 +90,7 @@ export async function renderStats() {
     if (discs.length > 0) {
       const discLabels = discs.map(d => DISC_LABEL[d] || d);
       const discValues = discs.map(d => data.byDisc[d]);
-      const discColors = discs.map(d => DISC_COLORS[d] || '#A7A7A7');
+      const discColors = discs.map(d => DISC_COLORS[d] || '#A1A1AA');
 
       const discCtx = document.getElementById('discChart').getContext('2d');
       discChartInstance = new Chart(discCtx, {
@@ -100,7 +100,7 @@ export async function renderStats() {
           datasets: [{
             data: discValues,
             backgroundColor: discColors,
-            borderColor: '#282828',
+            borderColor: '#252547',
             borderWidth: 2,
           }],
         },
@@ -110,7 +110,7 @@ export async function renderStats() {
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#A7A7A7', font: { family: 'Inter', weight: '600' }, padding: 12 },
+              labels: { color: '#A1A1AA', font: { family: 'Inter', weight: '600' }, padding: 12 },
             },
           },
         },
