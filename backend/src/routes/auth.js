@@ -17,12 +17,17 @@ function userResponse(user) {
   return { id: user.id, username: user.username, display_name: user.display_name };
 }
 
-// POST /register
+// POST /register (max 2 users — private duel only)
 router.post('/register', async (req, res) => {
   try {
     const { username, password, displayName, display_name } = req.body;
     if (!username || !password) {
       return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    const countResult = await pool.query('SELECT COUNT(*)::int AS cnt FROM users');
+    if (countResult.rows[0].cnt >= 2) {
+      return res.status(403).json({ error: 'Maximale Spielerzahl erreicht (2/2)' });
     }
 
     const name = displayName || display_name || username;
